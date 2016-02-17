@@ -28,10 +28,13 @@ defmodule TodoList.CsvImporter do
     |> Enum.map(&(String.split(&1, ",")))
     |> IO.inspect
     |> process_list2
+    |> IO.inspect
     |> convert_date
+    |> IO.inspect
     |> Enum.map(&(List.to_tuple(&1)))
     |> date_to_tuple
-    |> convert_to_list_of_maps
+    # |> convert_to_list_of_maps
+    |> IO.inspect
     # |> Enum.map(&(List.to_tuple(&1)))
     # |> Enum.map(&(String.lstrip(&1)))
     #    |> Enum.each
@@ -39,15 +42,27 @@ defmodule TodoList.CsvImporter do
   end
 
   def convert_to_list_of_maps(list) do
-    IO.inspect(list)
-   for {{date}, loc} <- list, into: Map.new, do: { date,  loc} 
+    imp_map = Map.new()
+    Enum.each(list,
+    fn(item, imp_map) ->
+      date = List.first(item)
+      loc = List.last(item)
+      #      IO.inspect(date)
+      imp_map = Map.put(imp_map, :date , loc)
+      IO.inspect(imp_map)
+    end)
+    imp_map
+      
+    #   IO.inspect(list)
+    # for {{date}, loc} <- list, into: Map.new, do: { date,  loc} 
     #    for x <- list, into: Map.new, do: { x } 
     #   |> Enum.map(&Enum.into(&1, Map.new))
   end
 
   def date_to_tuple([]), do: []
-  def date_to_tuple([{date, loc} | tail]), do: [{List.to_tuple(date), loc }
+  def date_to_tuple([{date, loc} | tail]), do: [{List.to_tuple(date), ":loc #{loc}"}
       | date_to_tuple(tail)]
+  
   def convert_date([]), do: []
   def convert_date([[[year, month, day], loc] | tail]), do:
   [[[String.to_integer(year), String.to_integer(month), String.to_integer(day)], loc ] | convert_date(tail)]
@@ -56,15 +71,16 @@ defmodule TodoList.CsvImporter do
   def process_list2([head = [xdate, xloc]  | tail]), do: [ head =
     [String.split(xdate,"/"),
       String.lstrip(xloc)] | process_list2(tail)]
-  def process_list([]), do: []
-  def process_list([head | tail]), do: [pr_line(head) | process_list(tail)]
 
-  def pr_line([]), do: []
-  def pr_line([head | tail]), do: [pr_string(head) | pr_line(tail)]
+  # def process_list([]), do: []
+  # def process_list([head | tail]), do: [pr_line(head) | process_list(tail)]
 
-  def pr_string(string) do
-    String.split(String.lstrip(string), "/")
-  end
+  # def pr_line([]), do: []
+  # def pr_line([head | tail]), do: [pr_string(head) | pr_line(tail)]
+
+  # def pr_string(string) do
+    # String.split(String.lstrip(string), "/")
+    #end
 end
 
 todo_list = TodoList.CsvImporter.import("todos.csv")
