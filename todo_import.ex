@@ -32,13 +32,44 @@ defmodule TodoList.CsvImporter do
     |> convert_date
     |> IO.inspect
     |> Enum.map(&(List.to_tuple(&1)))
+    #|> IO.inspect
     |> date_to_tuple
-    # |> convert_to_list_of_maps
     |> IO.inspect
+    |> makmap
+    # |> convert_to_list_of_maps
     # |> Enum.map(&(List.to_tuple(&1)))
     # |> Enum.map(&(String.lstrip(&1)))
     #    |> Enum.each
     #    |> String.split(&1, "/") |> IO.inspect
+  end
+
+
+  def makmap([]), do: []
+  def makmap([head | tail]) do 
+    tm = %{}
+    lst = Tuple.to_list(head)
+    tm = Map.put_new(tm, :date, List.first(lst))
+    tm = Map.put_new(tm, :title, List.last(lst))
+    #    tm = Map.put_new(tm, :loc, head[1])
+    head = tm
+    IO.inspect(head)
+    [ head | makmap(tail)]
+  end
+  
+  def makmap2([]), do: []
+  def makmap2([head | tail]) do 
+    [  Tuple.insert_at(head, 0, "date:" ) | makmap2(tail)]
+  end
+  def mkmap(list) do
+    pmap = Map.new
+    mk_map(list, pmap)
+  end
+
+  def mk_map([], pmap), do: pmap
+  def mk_map([head | tail], pmap) do
+      pmap = Map.put(pmap, head, head)
+      #    IO.inspect(pmap)
+      mk_map(tail, pmap)
   end
 
   def convert_to_list_of_maps(list) do
@@ -60,7 +91,7 @@ defmodule TodoList.CsvImporter do
   end
 
   def date_to_tuple([]), do: []
-  def date_to_tuple([{date, loc} | tail]), do: [{List.to_tuple(date), ":loc #{loc}"}
+  def date_to_tuple([{date, loc} | tail]), do: [{List.to_tuple(date), loc}
       | date_to_tuple(tail)]
   
   def convert_date([]), do: []
@@ -85,6 +116,8 @@ end
 
 todo_list = TodoList.CsvImporter.import("todos.csv")
 IO.puts "\n*** Imported data"
+IO.inspect(todo_list)
+todo_list = TodoList.new(todo_list)
 IO.inspect(todo_list)
 
 
