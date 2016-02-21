@@ -49,13 +49,15 @@ defmodule TestStreams do
     File.stream!(path)
     |> Stream.map(&String.replace(&1, "\n", ""))
     |> Enum.reduce( {0," "}, &p_longest_line/2)
-    |> IO.inspect
+    |> p_lline
 
   end
 
+  defp p_lline(tp), do: IO.puts elem(tp, 1)
+
   defp p_longest_line(line,{ acc, ll}) do
     len = String.length(line)
-    IO.puts len
+    #  IO.puts len
     if len > acc do
       acc = len
       ll = line
@@ -65,7 +67,24 @@ defmodule TestStreams do
     end
     {acc, ll}
   end
+
+  def words_per_line!(path) do
+    File.stream!(path)
+    |> Stream.map(&String.replace(&1, "\n", ""))
+    |> Enum.reduce( 0, &p_words_line/2)
+    |> IO.puts
+
+  end
+
+  defp p_words_line(line, acc) do
+    words = length(String.split(line))
+    IO.puts words
+    acc = acc + words
+  end
+
+
 end
+
 
 IO.puts "\n--- Large Lines; lines over 60 chars ---\n"
 TestStreams.large_lines!("lines.txt")
@@ -78,4 +97,7 @@ TestStreams.longest_line_length!("lines.txt")
 
 IO.puts "\n--- Print Longest Line ---\n"
 TestStreams.print_longest_line!("lines.txt")
+
+IO.puts "\n--- Words Per Line ---\n"
+TestStreams.words_per_line!("lines.txt")
 

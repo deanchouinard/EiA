@@ -4,4 +4,5 @@ the test to work.
 Another short line.
 
 Does the blank line about count in the total.
+Might as well add another line with more than 60 chars for testing purposes
 Done.
