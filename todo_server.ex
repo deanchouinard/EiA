@@ -90,24 +90,25 @@ defmodule TodoList do
     end
 end
 
-todo_list = TodoList.new |>
-  TodoList.add_entry(%{date: {2013, 12, 19}, title: "Dentist"}) |>
-  TodoList.add_entry(%{date: {2013, 12, 20}, title: "Shopping"}) |>
-  TodoList.add_entry(%{date: {2013, 12, 19}, title: "Movies"})
+todo_server = TodoServer.start
 
-TodoList.entries(todo_list, {2013, 12, 19}) |> IO.inspect
+TodoServer.add_entry(todo_server, %{date: {2013, 12, 19}, title: "Dentist"})
+TodoServer.add_entry(todo_server, %{date: {2013, 12, 20}, title: "Shopping"})
+  TodoServer.add_entry(todo_server, %{date: {2013, 12, 19}, title: "Movies"})
 
-IO.puts "\n*** Updating an entry"
-todo_list = TodoList.update_entry(todo_list, 1, 
-  &Map.put(&1, :date, {2013, 12, 20}))
+TodoServer.entries(todo_server, {2013, 12, 19}) |> IO.inspect
 
-TodoList.entries(todo_list, {2013, 12, 19}) |> IO.inspect
+# IO.puts "\n*** Updating an entry"
+# todo_list = TodoList.update_entry(todo_list, 1, 
+# &Map.put(&1, :date, {2013, 12, 20}))
 
-IO.puts "\n*** Whole todo_list"
-IO.inspect(todo_list)
+#TodoList.entries(todo_list, {2013, 12, 19}) |> IO.inspect
 
-IO.puts "\n*** Delete entry"
-todo_list = TodoList.delete_entry(todo_list, 1)
-IO.inspect(todo_list)
+# IO.puts "\n*** Whole todo_list"
+#IO.inspect(todo_list)
+
+#IO.puts "\n*** Delete entry"
+#todo_list = TodoList.delete_entry(todo_list, 1)
+#IO.inspect(todo_list)
 
 
