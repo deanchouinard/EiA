@@ -28,6 +28,14 @@ defmodule TodoServer do
     end
   end
 
+  def update_entry(todo_server, entry_id, updater_fun) do
+    send(todo_server, {:update_entry, entry_id, updater_fun})
+  end
+
+  def delete_entry(todo_server, entry_id) do
+    send(todo_server, {:delete_entry, entry_id})
+  end
+  
   defp process_message(todo_list, {:add_entry, new_entry}) do
     TodoList.add_entry(todo_list, new_entry)
   end
@@ -36,6 +44,15 @@ defmodule TodoServer do
     send(caller, {:todo_entries, TodoList.entries(todo_list, date)})
     todo_list
   end
+
+  defp process_message(todo_list, {:update_entry, entry_id, updater_fun}) do
+    TodoList.update_entry(todo_list, entry_id, updater_fun)
+  end
+
+  defp process_message(todo_list, {:delete_entry, entry_id}) do
+    TodoList.delete_entry(todo_list, entry_id)
+  end
+
 end
 
 defmodule TodoList do
@@ -98,17 +115,18 @@ TodoServer.add_entry(todo_server, %{date: {2013, 12, 20}, title: "Shopping"})
 
 TodoServer.entries(todo_server, {2013, 12, 19}) |> IO.inspect
 
-# IO.puts "\n*** Updating an entry"
-# todo_list = TodoList.update_entry(todo_list, 1, 
-# &Map.put(&1, :date, {2013, 12, 20}))
+IO.puts "\n*** Updating an entry"
+TodoServer.update_entry(todo_server, 1, &Map.put(&1, :date, {2013, 12, 20}))
 
-#TodoList.entries(todo_list, {2013, 12, 19}) |> IO.inspect
+TodoServer.entries(todo_server, {2013, 12, 19}) |> IO.inspect
 
-# IO.puts "\n*** Whole todo_list"
-#IO.inspect(todo_list)
+#IO.puts "\n*** Whole todo_list"
+# IO.inspect(todo_server)
 
-#IO.puts "\n*** Delete entry"
-#todo_list = TodoList.delete_entry(todo_list, 1)
-#IO.inspect(todo_list)
+IO.puts "\n*** Delete entry"
+TodoServer.entries(todo_server, {2013, 12, 20}) |> IO.inspect
+TodoServer.delete_entry(todo_server, 1)
+# IO.inspect(todo_list)
+TodoServer.entries(todo_server, {2013, 12, 20}) |> IO.inspect
 
 
