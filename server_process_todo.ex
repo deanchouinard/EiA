@@ -143,6 +143,10 @@ defmodule TodoList do
     ServerProcess.call(pid, {:get, key})
   end
 
+  def update(pid, key, u_fun) do
+    ServerProcess.cast(pid, {:upd, key, u_fun})
+  end
+
   def init do
     TodoList.new
   end
@@ -155,6 +159,10 @@ defmodule TodoList do
     {TodoList.entries(state, key), state}
   end
   
+  def handle_cast({:upd, key, u_fun}, state) do
+    TodoList.update_entry(state, key, u_fun)
+  end
+
   def new, do: %TodoList{}
 
   def add_entry(
@@ -245,3 +253,7 @@ TodoList.put(pid, %{date: {2013, 12, 19}, title: "Movies"})
 
 TodoList.get(pid, {2013, 12, 19}) |> IO.inspect
 
+IO.puts "\n*** Updating an entry"
+TodoList.update(pid, 1, &Map.put(&1, :date, {2013, 12, 20}))
+
+TodoList.get(pid, {2013, 12, 19}) |> IO.inspect
