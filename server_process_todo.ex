@@ -147,20 +147,27 @@ defmodule TodoList do
     ServerProcess.cast(pid, {:upd, key, u_fun})
   end
 
+  def delete(pid, key) do
+    ServerProcess.cast(pid, {:del, key})
+  end
   def init do
     TodoList.new
-  end
-
-  def handle_cast({:put, value}, state) do
-    TodoList.add_entry(state, value)
   end
 
   def handle_call({:get, key}, state) do
     {TodoList.entries(state, key), state}
   end
   
+  def handle_cast({:put, value}, state) do
+    TodoList.add_entry(state, value)
+  end
+
   def handle_cast({:upd, key, u_fun}, state) do
     TodoList.update_entry(state, key, u_fun)
+  end
+
+  def handle_cast({:del, key}, state) do
+    TodoList.delete_entry(state, key)
   end
 
   def new, do: %TodoList{}
@@ -257,3 +264,9 @@ IO.puts "\n*** Updating an entry"
 TodoList.update(pid, 1, &Map.put(&1, :date, {2013, 12, 20}))
 
 TodoList.get(pid, {2013, 12, 19}) |> IO.inspect
+
+IO.puts "\n*** Delete entry"
+TodoList.get(pid, {2013, 12, 20}) |> IO.inspect
+TodoList.delete(pid, 1)
+# IO.inspect(todo_list)
+TodoList.get(pid, {2013, 12, 20}) |> IO.inspect
