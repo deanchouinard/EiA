@@ -1,87 +1,46 @@
-defmodule ServerProcess do
-  def start(callback_module) do
-    spawn(fn ->
-      initial_state = callback_module.init
-      loop(callback_module, initial_state)
-    end)
-  end
-
-  defp loop(callback_module, current_state) do
-    receive do
-      {:call, request, caller} ->
-        {response, new_state} = callback_module.handle_call(
-          request,
-          current_state
-        )
-
-        send(caller, {:response, response})
-
-        loop(callback_module, new_state)
-
-      {:cast, request} ->
-        new_state = callback_module.handle_cast(
-          request, current_state)
-
-        loop(callback_module, new_state)
-    end
-  end
-
-  def call(server_pid, request) do
-    send(server_pid, {:call, request, self})
-
-    receive do
-      {:response, response} ->
-        response
-    end
-  end
-
-  def cast(server_pid, request) do
-    send(server_pid, {:cast, request})
-  end
-end
-
-
 defmodule TodoList do
+  use GenServer
 
   defstruct auto_id: 1, entries: HashDict.new
 
   def start do
-    ServerProcess.start(TodoList)
+    GenServer.start(TodoList, nil)
   end
 
   def put(pid, value) do
-    ServerProcess.cast(pid, {:put, value})
+    GenServer.cast(pid, {:put, value})
   end
 
   def get(pid, key) do
-    ServerProcess.call(pid, {:get, key})
+    GenServer.call(pid, {:get, key})
   end
 
   def update(pid, key, u_fun) do
-    ServerProcess.cast(pid, {:upd, key, u_fun})
+    GenServer.cast(pid, {:upd, key, u_fun})
   end
 
   def delete(pid, key) do
-    ServerProcess.cast(pid, {:del, key})
-  end
-  def init do
-    TodoList.new
+    GenServer.cast(pid, {:del, key})
   end
 
-  def handle_call({:get, key}, state) do
-    {TodoList.entries(state, key), state}
+  def init(_) do
+    {:ok, TodoList.new}
+  end
+
+  def handle_call({:get, key}, _, state) do
+    {:reply, TodoList.entries(state, key), state}
   end
   
   def handle_cast({:put, value}, state) do
-    TodoList.add_entry(state, value)
+    {:noreply, TodoList.add_entry(state, value)}
   end
 
   def handle_cast({:upd, key, u_fun}, state) do
-    TodoList.update_entry(state, key, u_fun)
+    {:noreply, TodoList.update_entry(state, key, u_fun)}
   end
 
   def handle_cast({:del, key}, state) do
-    TodoList.delete_entry(state, key)
+    {:noreply, TodoList.delete_entry(state, key)}
   end
 
   def new, do: %TodoList{}
@@ -134,7 +93,7 @@ end
 
 IO.puts "Server_process_todo"
 
-pid  = TodoList.start
+{:ok, pid}  = TodoList.start
 
 TodoList.put(pid, %{date: {2013, 12, 19}, title: "Dentist"})
 TodoList.put(pid, %{date: {2013, 12, 20}, title: "Shopping"})
