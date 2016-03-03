@@ -25,18 +25,23 @@ defmodule TodoList.CsvImporter do
   def import(data_file) do
     File.stream!(data_file) 
     |> Stream.map(&String.replace(&1, "\n", ""))
-    |> Enum.map(&(String.split(&1, ",")))
+    |> Stream.map(&(String.split(&1, ",")))
+    |> Stream.map(&proc_line(&1))
+    |> Stream.map(&conv_date(&1))
+    |> Enum.map(fn(x) -> x end)
     |> IO.inspect
     
-    |> process_list2
-    |> IO.inspect
-    |> convert_date
-    |> IO.inspect
-    |> Enum.map(&(List.to_tuple(&1)))
+    #    |> process_list2
     #|> IO.inspect
-    |> date_to_tuple
-    |> IO.inspect
-    |> makmap
+    #|> convert_date
+    #|> IO.inspect
+    #|> Enum.map(&(List.to_tuple(&1)))
+    #|> IO.inspect
+    #|> date_to_tuple
+    #|> IO.inspect
+    #|> makmap
+
+
     # |> convert_to_list_of_maps
     # |> Enum.map(&(List.to_tuple(&1)))
     # |> Enum.map(&(String.lstrip(&1)))
@@ -44,6 +49,18 @@ defmodule TodoList.CsvImporter do
     #    |> String.split(&1, "/") |> IO.inspect
   end
 
+  def conv_date(line) do
+    [[year, month, day], title] = line
+    line = [[String.to_integer(year), String.to_integer(month),
+        String.to_integer(day)], title]
+  end
+
+  def proc_line(line) do
+    line = List.update_at(line, 0, &String.split(&1,"/"))
+    line = List.update_at(line, 1, &String.lstrip(&1))
+    IO.inspect(line)
+    line
+  end
 
   def makmap([]), do: []
   def makmap([head | tail]) do 
