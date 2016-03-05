@@ -28,6 +28,7 @@ defmodule TodoList.CsvImporter do
     |> Stream.map(&(String.split(&1, ",")))
     |> Stream.map(&proc_line(&1))
     |> Stream.map(&conv_date(&1))
+    |> Stream.map(&mk_tup(&1))
     |> Enum.map(fn(x) -> x end)
     |> IO.inspect
     
@@ -49,15 +50,18 @@ defmodule TodoList.CsvImporter do
     #    |> String.split(&1, "/") |> IO.inspect
   end
 
-  def conv_date(line) do
-    [[year, month, day], title] = line
+  def mk_tup([date, title] = line) do
+    line = %{date: {date}, title: title}
+  end
+
+  def conv_date([[year, month, day], title] = line) do
+  #    [[year, month, day], title] = line
     line = [[String.to_integer(year), String.to_integer(month),
         String.to_integer(day)], title]
   end
 
-  def proc_line(line) do
-    line = List.update_at(line, 0, &String.split(&1,"/"))
-    line = List.update_at(line, 1, &String.lstrip(&1))
+  def proc_line([date, title] = line) do
+    line = [String.split(date,"/"), String.lstrip(title)]
     IO.inspect(line)
     line
   end
