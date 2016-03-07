@@ -1,4 +1,4 @@
-defmodule. Todo.Database do
+defmodule Todo.Database do
   use GenServer
 
   def start(db_folder) do
