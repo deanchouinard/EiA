@@ -18,10 +18,11 @@ defmodule Todo.Database do
 
   def init(db_folder) do
     acc = HashDict.new
-    table = Enum.reduce([0,1,2], acc, fn(x) ->
-      {:ok, pid} = Todo.Database.Worker.start(db_folder)
-      acc = {x, pid} end)
-
+    table = Enum.reduce([0,1,2], acc, fn(x, acc) ->
+      {:ok, pid} = Todo.DatabaseWorker.start(db_folder)
+      HashDict.put(acc, x, pid) end)
+    IO.inspect(table)
+    {:ok, table }
       #    File.mkdir_p(db_folder)
       #    {:ok,  db_folder}
   end
