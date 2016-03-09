@@ -8,11 +8,12 @@ defmodule Todo.Database do
   end
 
   def store(key, data) do
-    Todo.DatabaseWorker.store(getworker(table, key), {:store, key, data})
+    Todo.DatabaseWorker.store(getworker(state, key), {:store, key, data})
   end
 
   def get(key) do
-    Todo.DatabaseWorker.get(getworker(table, key), key)
+    pid = getworker(state, key)
+    Todo.DatabaseWorker.get(pid, key)
     #    GenServer.call(:database_server, {:get, key})
   end
 
