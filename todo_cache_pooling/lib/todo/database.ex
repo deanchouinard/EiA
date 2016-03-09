@@ -8,11 +8,11 @@ defmodule Todo.Database do
   end
 
   def store(key, data) do
-    GenServer.cast(:database_server, {:store, key, data})
+    Todo.DatabaseWorker.store(getworker(table, key), {:store, key, data})
   end
 
   def get(key) do
-    Todo.DatabaseWorker.get(getworker(key), key)
+    Todo.DatabaseWorker.get(getworker(table, key), key)
     #    GenServer.call(:database_server, {:get, key})
   end
 
@@ -27,8 +27,9 @@ defmodule Todo.Database do
       #    {:ok,  db_folder}
   end
 
-  defp getworker(key) do
-  
+  defp getworker(table, key) do
+    i = :erang.phash2(key, 3)
+    HashDict.get(table, i)
   end
 
   def handle_cast({:store, key, data}, db_folder) do
