@@ -22,6 +22,7 @@ defmodule Todo.DatabaseWorker do
     file_name(db_folder, key)
     |> File.write!(:erlang.term_to_binary(data))
 
+    IO.inspect "#{inspect(self)}:storing#{key}"
     {:noreply, db_folder}
   end
 
