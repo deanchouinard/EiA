@@ -20,7 +20,7 @@ defmodule Todo.Database do
     table = Enum.reduce([0,1,2], acc, fn(x, acc) ->
       {:ok, pid} = Todo.DatabaseWorker.start(db_folder)
       HashDict.put(acc, x, pid) end)
-    IO.inspect(table)
+      #    IO.inspect(table)
     {:ok, table }
       #    File.mkdir_p(db_folder)
       #    {:ok,  db_folder}
