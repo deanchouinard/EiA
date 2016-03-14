@@ -41,8 +41,18 @@ defmodule Todo.ProcessRegistry do
   end
  
   def whereis_name(key) do
-    GenServer.call(:whereis_name, key)
+    GenServer.call(:process_registry, {:whereis_name, key})
   end
 
-end
+  def start_link do
+    GenServer.start_link(__MODULE__, nil, name: :process_registry)
+  end
 
+  def register_name(key, pid) do
+    GenServer.call(:process_registry, {:register_name, key, pid})
+  end
+
+  def unregister_name(key) do
+    GenServer.info(:process_registry, {:DOWN, nil, :process, key})
+  end
+end
