@@ -27,19 +27,36 @@ defmodule Todo.ProcessRegistry do
   end
 
   def handle_call({:whereis_name, key}, _, process_registry) do
+  #    IO.inspect(process_registry)
+  # IO.inspect(key)
     {:reply, HashDict.get(process_registry, key, :undefined),
       process_registry}
   end
 
-  def handel_info({:DOWN, _, :process, pid, _}, process_registry) do
+  def handle_call({:unregister_name, key}, _, process_registry) do
+    {:reply, key, HashDict.delete(process_registry, key)}
+  end
+
+  def handle_info({:DOWN, _, :process, pid, _}, process_registry) do
   #    {:noreply, deregister_pid(new_registry, pid)}
   IO.puts "info"
     {:noreply, deregister_pid(process_registry, pid)}
   end
 
-  defp deregister_pid(new_registry, pid) do
+  def handle_info(_, state), do: {:noreply, state}
+
+  defp deregister_pid(process_registry, pid) do
   #    {HashDict.delete(new_registry, pid)}
-    {Enum.filter(new_registry, fn({key, value} = x) -> value != pid end)}
+  #    {Enum.filter(new_registry, fn({key, value} = x) -> value != pid end)}
+    Enum.reduce(process_registry, process_registry,
+    fn ({registered_alias, registered_process}, registry_acc)
+      when registered_process == pid ->
+        HashDict.delete(registry_acc, registered_alias)
+
+        (_, registry_acc) -> registry_acc
+
+    end
+    )
   end
  
   def whereis_name(key) do
@@ -55,6 +72,7 @@ defmodule Todo.ProcessRegistry do
   end
 
   def unregister_name(key) do
-    send(:process_registry, {:DOWN, nil, :process, key})
+    GenServer.call(:process_registry, {:unregister_name, key})
+    #    send(key, {:DOWN, nil, :process, key})
   end
 end
