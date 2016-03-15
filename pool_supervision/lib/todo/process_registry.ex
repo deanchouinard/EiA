@@ -33,11 +33,13 @@ defmodule Todo.ProcessRegistry do
 
   def handel_info({:DOWN, _, :process, pid, _}, process_registry) do
   #    {:noreply, deregister_pid(new_registry, pid)}
+  IO.puts "info"
     {:noreply, deregister_pid(process_registry, pid)}
   end
 
   defp deregister_pid(new_registry, pid) do
-    {HashDict.delete(new_registry, pid)}
+  #    {HashDict.delete(new_registry, pid)}
+    {Enum.filter(new_registry, fn({key, value} = x) -> value != pid end)}
   end
  
   def whereis_name(key) do
@@ -53,6 +55,6 @@ defmodule Todo.ProcessRegistry do
   end
 
   def unregister_name(key) do
-    GenServer.info(:process_registry, {:DOWN, nil, :process, key})
+    send(:process_registry, {:DOWN, nil, :process, key})
   end
 end
