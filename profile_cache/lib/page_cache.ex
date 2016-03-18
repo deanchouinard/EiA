@@ -17,7 +17,7 @@ defmodule PageCache do
   def handle_call({:cached, key, cont_fun}, _, cache_data) do
     case HashDict.fetch(cache_data, key) do
       {:ok, data} ->
-        IO.puts "cache hit"
+      #        IO.puts "cache hit"
         {:reply, data, cache_data}
       :error ->
         data = cont_fun.()
