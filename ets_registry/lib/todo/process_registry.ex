@@ -28,19 +28,36 @@ defmodule Todo.ProcessRegistry do
     #     {:reply, :no, process_registry}
     # end
     #end
+  defp read_cached(key) do
+    case :ets.lookup(:ets_process_registry, key) do
+      [{^key, cached}] -> cached
+      _ -> nil
+    end
+  end
+
+  def register_name(key, pid) do
+    IO.puts "register name"
+    read_cached(key) ||
+    GenServer.call(:process_registry, {:register_name, key, pid})
+  end
 
   def handle_call({:register_name, key, pid},_,_) do
     IO.inspect(key)
     IO.puts "handle call register"
-    case whereis_name(key) do
-      :undefined ->
-      #      nil ->
-        Process.monitor(pid)
-        :ets.insert(:ets_process_registry, {key, pid})
-        {:reply, :yes, nil}
-      _ ->
-        {:reply, :no}
-    end
+    case read_cached(key) do
+      nil -> cache_response(key, pid)
+      _ -> {:reply, :no, nil}
+    end 
+
+  end
+
+  defp cache_response(key, pid) do
+    Process.monitor(pid)
+    :ets.insert(:ets_process_registry, {key, pid})
+    {:reply, :yes, nil}
+    #    {:reply, :yes, nil}
+    # _ ->
+      #   {:reply, :no}
   end
 
   #  def handle_call({:whereis_name, key}, _, process_registry) do
@@ -115,11 +132,6 @@ defmodule Todo.ProcessRegistry do
     GenServer.start_link(__MODULE__, nil, name: :process_registry)
   end
 
-  def register_name(key, pid) do
-    IO.puts "register name"
-    #whereis_name(key) ||
-    GenServer.call(:process_registry, {:register_name, key, pid})
-  end
 
   def unregister_name(key) do
     GenServer.call(:process_registry, {:unregister_name, key})
