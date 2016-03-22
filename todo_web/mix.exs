@@ -15,7 +15,8 @@ defmodule Todo.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [applications: [:logger, :gproc, :cowboy, :plug],
-     mod: {Todo.Application, []}
+     mod: {Todo.Application, []},
+     env: [port: 5454]
     ]
   end
 
