@@ -23,7 +23,7 @@ defmodule Todo.DatabaseWorker do
     {:ok,  db_folder}
   end
 
-  def handle_call({:store, key, data}, db_folder) do
+  def handle_call({:store, key, data}, _, db_folder) do
     file_name(db_folder, key)
     |> File.write!(:erlang.term_to_binary(data))
 

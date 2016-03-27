@@ -32,7 +32,7 @@ defmodule Todo.Cache do
   end
 
   defp create_server(todo_list_name) do
-    case Todo.ServerSupervisor.start_chile(todo_list_name) do
+    case Todo.ServerSupervisor.start_child(todo_list_name) do
       {:ok, pid} -> pid
       {:error, {:already_started, pid}} -> pid
     end
